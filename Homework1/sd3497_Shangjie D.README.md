@@ -38,7 +38,7 @@ for cluster_mean in cluster_means:
 cluster_idx = np.argmin(dists)
 mask = masks[cluster_idx].reshape(size[0], size[1], 1)
 ```
-Here is the cluster found after KMeans 
+Here is the cluster found after KMeans  
 ![Mask](mask.jpg)
 
 ## Step 4
