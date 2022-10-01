@@ -74,6 +74,7 @@ def UNI_Name_kmeans(imgPath, imgFilename, savedImgPath=None, savedImgFilename=No
     mask_new = mask_new.reshape(size[0], size[1], 1)
     mask_new = mask_new.astype("uint8")
     cv2.imshow("Segmentation", img * mask_new)
+    cv2.imwrite("Face Cluster.jpg", img * mask_new)
 
     if not os.path.exists(savedImgPath):
         os.mkdir(savedImgPath)

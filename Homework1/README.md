@@ -46,7 +46,7 @@ Remove noise in the cluster using DBSCAN. Here, the input of DBSCAN algorithm
 is the coordinates of pixels, but not their color.  
 **Note**: We need to specify the argument `eps=2**0.5` for DBSCAN. It is the maximum distance
 between 2 samples for one to be considered as in the neighborhood of the other. Since the minimum 
-coordinates distance in an image is $\sqrt{2}$
+coordinates distance in an image is $\sqrt{2}$, we should have `eps=2**0.5`.
 ```python
 coords = []
 for i in range(size[0]):
@@ -55,4 +55,24 @@ for i in range(size[0]):
             coords.append([i, j])
 coords = np.array(coords)
 db = DBSCAN(eps=2*0.5)
+db.fit(coords)
+face_coords = coords[db.labels_ == 0]
 ```
+Here is the cluster after DBSCAN:  
+![Face Cluster](Face%20Cluster.jpg)
+
+## Step 5
+Find and plot the bounding box
+
+```python
+import cv2
+
+box = (np.min(face_coords[:, 1]),
+       np.min(face_coords[:, 0]),
+       np.max(face_coords[:, 0]),
+       np.max(face_coords[:, 1]))
+img_box = img.copy()
+cv2.rectangle(img_box, [box[0], box[1]], [box[2], box[3]], color=(0,0,255), thickness=2)
+```
+Here is the bounding box:  
+![Bounding Box](results/face_d2_result.jpg)
