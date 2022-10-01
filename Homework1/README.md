@@ -59,7 +59,7 @@ db.fit(coords)
 face_coords = coords[db.labels_ == 0]
 ```
 Here is the cluster after DBSCAN:  
-![Face Cluster](Face%20Cluster.jpg)
+![Face Cluster](md_images/Face%20Cluster.jpg)
 
 ## Step 5
 Find and plot the bounding box
