@@ -45,7 +45,7 @@ def UNI_Name_kmeans(imgPath, imgFilename, savedImgPath=None, savedImgFilename=No
     cluster_idx = np.argmin(dists)
     mask = masks[cluster_idx].reshape(size[0], size[1], 1)
     cv2.imshow("The Cluster", img * mask)
-    cv2.imwrite("mask.jpg", img * mask)
+    cv2.imwrite("md_images/mask.jpg", img * mask)
 
     # Find the bounding box
     coords = []
@@ -74,7 +74,7 @@ def UNI_Name_kmeans(imgPath, imgFilename, savedImgPath=None, savedImgFilename=No
     mask_new = mask_new.reshape(size[0], size[1], 1)
     mask_new = mask_new.astype("uint8")
     cv2.imshow("Segmentation", img * mask_new)
-    cv2.imwrite("Face Cluster.jpg", img * mask_new)
+    cv2.imwrite("md_images/Face Cluster.jpg", img * mask_new)
 
     if not os.path.exists(savedImgPath):
         os.mkdir(savedImgPath)

@@ -39,7 +39,7 @@ cluster_idx = np.argmin(dists)
 mask = masks[cluster_idx].reshape(size[0], size[1], 1)
 ```
 Here is the cluster found after KMeans  
-![Mask](mask.jpg)
+![Mask](md_images/mask.jpg)
 
 ## Step 4
 Remove noise in the cluster using DBSCAN. Here, the input of DBSCAN algorithm 
