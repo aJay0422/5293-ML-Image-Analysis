@@ -7,7 +7,7 @@ from sklearn.cluster import KMeans, DBSCAN
 TARGET_COLOR = np.array([131, 152, 197])
 
 
-def UNI_Name_kmeans(imgPath, imgFilename, savedImgPath=None, savedImgFilename=None, k=3):
+def sd3497_Shangjie_Du_kmeans(imgPath, imgFilename, savedImgPath=None, savedImgFilename=None, k=3):
     """
     K-means method for segmentation.
     :param imgPath: the path of the image folder. Please use relative path
@@ -83,39 +83,10 @@ def UNI_Name_kmeans(imgPath, imgFilename, savedImgPath=None, savedImgFilename=No
     cv2.waitKey()
 
 
-
-
-def multi_faces(imgPath, imgFileName):
-    import mediapipe as mp
-
-
-    mp_face_detection = mp.solutions.face_detection
-    mp_drawing = mp.solutions.drawing_utils
-    face_detection = mp_face_detection.FaceDetection(model_selection=1)
-
-    img = cv2.imread(imgPath + imgFilename)
-    imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    result = face_detection.process(imgRGB)
-
-    if result.detections:   # at least one face is detected
-        for id, detection in enumerate(result.detections):
-            ih, iw, ic = img.shape
-            bboxC = detection.location_data.relative_bounding_box
-            bbox = int(bboxC.xmin * iw), int(bboxC.ymin * ih), \
-                   int(bboxC.width * iw), int(bboxC.height * ih)
-            cv2.rectangle(img, bbox, color=(255, 0, 255), thickness=2)
-
-
-
-    cv2.imshow("faces", img)
-    cv2.waitKey(0)
-
-
-
 if __name__ == "__main__":
     imgPath = "./"
     imgFilename = "face_d2.jpg"
     savedImgPath = "./results/"
     savedImgfilename = "face_d2_result.jpg"
     k = 3
-    UNI_Name_kmeans(imgPath, imgFilename, savedImgPath, savedImgfilename, k=k)
+    sd3497_Shangjie_Du_kmeans(imgPath, imgFilename, savedImgPath, savedImgfilename, k=k)
