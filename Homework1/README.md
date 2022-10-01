@@ -76,3 +76,12 @@ cv2.rectangle(img_box, [box[0], box[1]], [box[2], box[3]], color=(0,0,255), thic
 ```
 Here is the bounding box:  
 ![Bounding Box](results/face_d2_result.jpg)
+
+
+# Discuss
+The success of current method highly depends on that we can identify the face cluster after KMeans.
+If KMean can not separate the face out at any choice of k, then we can not use DBSCAN to remove 
+the surrounding noise.  
+A probably better method can be using some feature extraction method. We may be able
+to extract some common features that all faces contain. After identifying such features,
+we can know the area where the face is.
