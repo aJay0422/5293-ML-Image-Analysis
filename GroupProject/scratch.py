@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 # load image
-file_path = "datasets/CASIA/008/1/008_1_1.bmp"
+file_path = "datasets/CASIA/001/1/001_1_1.bmp"
 img = cv2.imread(file_path, cv2.IMREAD_GRAYSCALE)
 img_color = cv2.imread(file_path)
 
@@ -59,12 +59,21 @@ cv2.waitKey(0)
 
 Rp = pupil_circles[0][2]
 cv2.circle(img_color, (X_p, Y_p), Rp, color=(0,255,0), thickness=1)
+cv2.circle(img_color, (X_p, Y_p), Rp+53, color=(0,0,255), thickness=1)
 cv2.imshow("Pupil", img_color)
 cv2.waitKey(0)
 
-img_blurred = cv2.medianBlur(img, 7)
-img_edges = cv2.Canny(img_blurred, threshold1=15, threshold2=100)
-cv2.imshow("Edges", img_edges)
+img_blurred = cv2.medianBlur(img, 11)
+img_blurred = cv2.medianBlur(img_blurred, 11)
+img_blurred = cv2.medianBlur(img_blurred, 11)
+img_bi = cv2.bilateralFilter(img, 9, 75, 75)
+
+kernel = np.array([[0, -1, 0],
+                   [-1, 5,-1],
+                   [0, -1, 0]])
+img_sharp = cv2.filter2D(img_blurred, ddepth=-1, kernel=kernel)
+cv2.Canny(img_blurred, threshold1=50, threshold2=100)
+cv2.imshow("Edges", img_bi)
 cv2.waitKey(0)
 
 
