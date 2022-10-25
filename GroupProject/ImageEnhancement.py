@@ -38,7 +38,7 @@ def enhancement(img):
 
 
 if __name__ == "__main__":
-    file_path = "datasets/CASIA/011/1/011_1_3.bmp"
+    file_path = "datasets/CASIA/012/1/012_1_1.bmp"
     img = cv2.imread(file_path, cv2.IMREAD_GRAYSCALE)
     X_p, Y_p, Rp, X_i, Y_i, Ri = localization(img)
     output = normalization(img, X_p, Y_p, Rp, X_i, Y_i, Ri)
