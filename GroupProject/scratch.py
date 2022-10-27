@@ -63,17 +63,17 @@ cv2.circle(img_color, (X_p, Y_p), Rp+53, color=(0,0,255), thickness=1)
 cv2.imshow("Pupil", img_color)
 cv2.waitKey(0)
 
-img_blurred = cv2.medianBlur(img, 11)
-img_blurred = cv2.medianBlur(img_blurred, 11)
-img_blurred = cv2.medianBlur(img_blurred, 11)
-img_bi = cv2.bilateralFilter(img, 9, 75, 75)
+img_blurred = img.copy()
+# img_blurred = cv2.medianBlur(img, 11)
+# img_blurred = cv2.medianBlur(img_blurred, 11)
+# img_blurred = cv2.medianBlur(img_blurred, 11)
 
 kernel = np.array([[0, -1, 0],
                    [-1, 5,-1],
                    [0, -1, 0]])
 img_sharp = cv2.filter2D(img_blurred, ddepth=-1, kernel=kernel)
-cv2.Canny(img_blurred, threshold1=50, threshold2=100)
-cv2.imshow("Edges", img_bi)
+img_edge = cv2.Canny(img_blurred , threshold1=50, threshold2=100)
+cv2.imshow("Edge", img_edge)
 cv2.waitKey(0)
 
 
@@ -86,27 +86,4 @@ cv2.imshow("Image", img_color)
 cv2.waitKey(0)
 
 
-
-# img_color = cv2.circle(img_color, centroid, 2, (0,0,255), 3)
-
-img_cropped = img[centroid[1] - 120:centroid[1] + 120, centroid[0] - 120:centroid[0] + 120]
-# cv2.imshow("Image", img_cropped)
-# cv2.waitKey(0)
-
-img_cropped = cv2.Canny(img_cropped, threshold1=75, threshold2=150)
-circles = cv2.HoughCircles(img_cropped, cv2.HOUGH_GRADIENT, 1, 1, param1=150, param2=1)
-circles = np.uint16(np.around(circles))[0]
-img_cropped_color = cv2.cvtColor(img_cropped, cv2.COLOR_GRAY2BGR)
-for i in circles[:10]:
-    img_cropped_color = cv2.circle(img_cropped_color, (i[0], i[1]), i[2],
-                         (0,255,0), 2)
-    cv2.imshow("Image", img_cropped_color)
-    cv2.waitKey(0)
-
-
-
-cv2.imshow("Image", img_cropped_color)
-cv2.waitKey(0)
-# cv2.imshow("Image", img_color)
-# cv2.waitKey(0)
 
