@@ -29,6 +29,14 @@ def normalization(img, X_p, Y_p, Rp, X_i, Y_i, Ri):
             y = y_p_theta + (y_i_theta - y_p_theta) * Y / M
             x = round(x)
             y = round(y)
+            if y >= 280:
+                y = 279
+            elif y < 0:
+                y = 0
+            if x >= 320:
+                x = 319
+            elif x < 0:
+                x = 0
             output[Y, X] = img[y, x]
     output = output.astype(np.uint8)
     return output

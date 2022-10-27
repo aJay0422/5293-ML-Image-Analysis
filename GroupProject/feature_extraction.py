@@ -41,11 +41,11 @@ def gabor_filter(ksize, f, sigma_x, sigma_y):
     return g_filter
 
 
-def get_filtered_image(img):
+def get_filtered_image(img, kernel_size=7):
     img_ROI = img[:region, :]
 
-    filter1 = gabor_filter(9, 1 / 1.5, 3, 1.5)
-    filter2 = gabor_filter(9, 1 / 1.5, 4.5, 1.5)
+    filter1 = gabor_filter(kernel_size, 1 / 1.5, 3, 1.5)
+    filter2 = gabor_filter(kernel_size, 1 / 1.5, 4.5, 1.5)
 
     img_filtered1 = convolve2d(img_ROI, filter1, mode="same")
     img_filtered2 = convolve2d(img_ROI, filter2, mode="same")
@@ -54,7 +54,6 @@ def get_filtered_image(img):
 
 
 def block_feature_extractor(block):
-    (n, m) = block.shape
     block = np.abs(block)
     m = np.mean(block)
     v = np.std(block)
@@ -62,13 +61,13 @@ def block_feature_extractor(block):
     return m, v
 
 
-def FeatureExtraction(img):
-    n_row, n_col = img.shape
-    img_filtered1, img_filtered2 = get_filtered_image(img)
+def FeatureExtraction(img, kernel_size=7):
+    img_filtered1, img_filtered2 = get_filtered_image(img, kernel_size)
+    n_row, n_col = img_filtered1.shape
 
-    cv2.imshow("Image1", img_filtered1)
-    cv2.imshow("Image2", img_filtered2)
-    cv2.waitKey(0)
+    # cv2.imshow("Image1: kernel_size{}".format(kernel_size), img_filtered1)
+    # cv2.imshow("Image2: kernel_size{}".format(kernel_size), img_filtered2)
+    # cv2.waitKey(0)
 
     block_size = 8
     n_blocks_row = n_row // block_size
@@ -89,10 +88,12 @@ def FeatureExtraction(img):
 
 
 if __name__ == "__main__":
-    file_path = "datasets/CASIA/012/1/012_1_1.bmp"
+    file_path = "datasets/CASIA/042/1/042_1_1.bmp"
     img = cv2.imread(file_path, cv2.IMREAD_GRAYSCALE)
     X_p, Y_p, Rp, X_i, Y_i, Ri = localization(img)
+    img = cv2.circle(img, (X_p, Y_p), radius=Rp, color=(0,0,0), thickness=2)
+    cv2.imshow("Pupil", img)
+    cv2.waitKey(0)
     output = normalization(img, X_p, Y_p, Rp, X_i, Y_i, Ri)
     img_enhanced = enhancement(output)
-    features = FeatureExtraction(img_enhanced)
-    stop = None
+    features = FeatureExtraction(img_enhanced, 7)
