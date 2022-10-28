@@ -5,9 +5,6 @@ import numpy as np
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.neighbors import NearestCentroid
 
-def get_all_train_path():
-    for name in os.walk("./datasets/CASIA/"):
-        print(name)
 
 def reduce_dim(x,y):
     lda = LDA()
