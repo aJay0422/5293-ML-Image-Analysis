@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 # load image
-file_path = "datasets/CASIA/001/1/001_1_1.bmp"
+file_path = "datasets/CASIA/014/1/014_1_3.bmp"
 img = cv2.imread(file_path, cv2.IMREAD_GRAYSCALE)
 img_color = cv2.imread(file_path)
 
@@ -11,6 +11,10 @@ proj_h = np.mean(img, axis=0)
 proj_v = np.mean(img, axis=1)
 X_p = np.argmin(proj_h)
 Y_p = np.argmin(proj_v)
+
+img_color = cv2.circle(img_color, (X_p, Y_p), radius=1, color=(0,255,0), thickness=2)
+cv2.imshow("Center", img_color)
+cv2.waitKey(0)
 
 # crop a 60x60 area around the center
 coord_upperleft = (X_p - 60, Y_p - 60)
