@@ -1,30 +1,24 @@
-from IrisMatching import irisMatching_train
-import glob
-import cv2
-from sklearn.metrics import roc_curve
-from sklearn.metrics import RocCurveDisplay
+import numpy as np
+from joblib import load
 
-def PerformanceEvaluation:
-    test_image = [cv2.imread(file, cv2.IMREAD_GRAYSCALE) for file in sorted(glob.glob('./data/*/2/*.bmp'))]
-    features_test = []
 
-    for image in test_image:
-        X_p, Y_p, Rp, X_i, Y_i, Ri = localization(image)
-        iris_image = normalization(image, X_p, Y_p, Rp, X_i, Y_i, Ri)
-        enhanced_image = enhancement(iris_image)
-        feature = FeatureExtraction(enhanced_image)
-        features_test.append(feature)
+def PerformanceEvaluation(metric="l2"):
+    # Prepare lda and classifier
+    lda = load("lda.joblib")
+    clf = load(f"clf_{metric}.joblib")
 
-    print("Testing data processed.")
-    clf, lda = iris_Matching_train()
+    # Prepare data
+    X_test = np.load("test_features.npy")
+    Y_test = np.repeat(np.arange(108), 4)
+    X_test_lda = lda.transform(X_test)
 
-    label_test = np.arrange(108)
-    np.repeat(label_test,2)
-    features_test = np.array(features_test)
+    # Prediction and evaluation
+    Y_pred = clf.predict(X_test_lda)
+    crr = np.mean(Y_pred == Y_test)
+    print(f"Distance Metric: {metric}  CRR: {crr}")
 
-    Xtest_lda = lda.transform(features_test)
-    label_pred = clf.predict(Xtest_lda)
 
-    fpr, tpr, _ = roc_curve(y_test, y_score, pos_label=clf.classes_[1])
-    roc_display = RocCurveDisplay(fpr=fpr, tpr=tpr).plot()
-
+if __name__ == "__main__":
+    PerformanceEvaluation("l1")
+    PerformanceEvaluation("l2")
+    PerformanceEvaluation("cosine")

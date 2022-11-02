@@ -2,6 +2,8 @@ import cv2
 import numpy as np
 import math
 from scipy.signal import convolve2d
+import glob
+from tqdm import tqdm
 
 from IrisNormalization import normalization
 from IrisLocalization import localization
@@ -85,15 +87,34 @@ def FeatureExtraction(img, kernel_size=7):
     return features
 
 
+def save_feature(train=True):
+    if train:
+        images = [cv2.imread(file, cv2.IMREAD_GRAYSCALE) for file in sorted(glob.glob('./datasets/CASIA/*/1/*.bmp'))]
+    else:
+        images = [cv2.imread(file, cv2.IMREAD_GRAYSCALE) for file in sorted(glob.glob('./datasets/CASIA/*/2/*.bmp'))]
+
+    features = []
+    for image in tqdm(images):
+        X_p, Y_p, Rp, X_i, Y_i, Ri = localization(image)
+        # print("Localization finished")
+        iris_image = normalization(image, X_p, Y_p, Rp, X_i, Y_i, Ri)
+        # print("normalization finished")
+        enhanced_image = enhancement(iris_image)
+        # print("enhancement finished")
+        feature = FeatureExtraction(enhanced_image)
+        # print("feature extraction finished")
+        features.append(feature)
+
+    features = np.array(features)
+    if train:
+        np.save("train_features.npy", features)
+    else:
+        np.save("test_features.npy", features)
+
+    print("Saved. Shape={}".format(features.shape))
+
+
 
 
 if __name__ == "__main__":
-    file_path = "datasets/CASIA/042/1/042_1_1.bmp"
-    img = cv2.imread(file_path, cv2.IMREAD_GRAYSCALE)
-    X_p, Y_p, Rp, X_i, Y_i, Ri = localization(img)
-    img = cv2.circle(img, (X_p, Y_p), radius=Rp, color=(0,0,0), thickness=2)
-    cv2.imshow("Pupil", img)
-    cv2.waitKey(0)
-    output = normalization(img, X_p, Y_p, Rp, X_i, Y_i, Ri)
-    img_enhanced = enhancement(output)
-    features = FeatureExtraction(img_enhanced, 7)
+    save_feature(train=False)
