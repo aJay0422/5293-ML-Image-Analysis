@@ -20,16 +20,16 @@ def localization(img):
 
     # Crop a 60x60 area around the center
     coord_upperleft = (X_p - 60, Y_p - 60)
-    coord_botom_right = (X_p + 60, Y_p + 60)
+    coord_bottom_right = (X_p + 60, Y_p + 60)
 
     # Binarize the cropped image with some threshold
-    img_cropped = img[coord_upperleft[1]: coord_botom_right[1] + 1, coord_upperleft[0]: coord_botom_right[0] + 1]
+    img_cropped = img[coord_upperleft[1]: coord_bottom_right[1] + 1, coord_upperleft[0]: coord_bottom_right[0] + 1]
     # plt.hist(img_cropped, bins=256)
     # plt.show()
     threshold = np.bincount(img_cropped.reshape(-1)).argmax()
     pupil_coords = []
-    for x in range(coord_upperleft[0], coord_botom_right[0] + 1):
-        for y in range(coord_upperleft[1], coord_botom_right[1] + 1):
+    for x in range(coord_upperleft[0], coord_bottom_right[0] + 1):
+        for y in range(coord_upperleft[1], coord_bottom_right[1] + 1):
             if img[y, x] <= threshold:
                 pupil_coords.append([x, y])
 
@@ -39,12 +39,12 @@ def localization(img):
 
     # Repeat the crop and binarize process to get a better estimate of pupil center
     coord_upperleft = (X_p - 60, Y_p - 60)
-    coord_botom_right = (X_p + 60, Y_p + 60)
-    img_cropped = img[coord_upperleft[1]: coord_botom_right[1] + 1, coord_upperleft[0]: coord_botom_right[0] + 1]
+    coord_bottom_right = (X_p + 60, Y_p + 60)
+    img_cropped = img[coord_upperleft[1]: coord_bottom_right[1] + 1, coord_upperleft[0]: coord_bottom_right[0] + 1]
     threshold = np.bincount(img_cropped.reshape(-1)).argmax()
     pupil_coords = []
-    for x in range(coord_upperleft[0], coord_botom_right[0] + 1):
-        for y in range(coord_upperleft[1], coord_botom_right[1] + 1):
+    for x in range(coord_upperleft[0], coord_bottom_right[0] + 1):
+        for y in range(coord_upperleft[1], coord_bottom_right[1] + 1):
             if img[y, x] <= threshold:
                 pupil_coords.append([x, y])
 
