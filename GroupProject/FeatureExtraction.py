@@ -63,7 +63,7 @@ def block_feature_extractor(block):
     return m, v
 
 
-def FeatureExtraction(img, kernel_size=7):
+def FeatureExtraction(img, kernel_size=9):
     img_filtered1, img_filtered2 = get_filtered_image(img, kernel_size)
     n_row, n_col = img_filtered1.shape
 
@@ -87,11 +87,11 @@ def FeatureExtraction(img, kernel_size=7):
     return features
 
 
-def save_feature(train=True):
+def save_feature(train=True, dataset_path=None):
     if train:
-        images = [cv2.imread(file, cv2.IMREAD_GRAYSCALE) for file in sorted(glob.glob('./datasets/CASIA/*/1/*.bmp'))]
+        images = [cv2.imread(file, cv2.IMREAD_GRAYSCALE) for file in sorted(glob.glob(dataset_path + '*/1/*.bmp'))]
     else:
-        images = [cv2.imread(file, cv2.IMREAD_GRAYSCALE) for file in sorted(glob.glob('./datasets/CASIA/*/2/*.bmp'))]
+        images = [cv2.imread(file, cv2.IMREAD_GRAYSCALE) for file in sorted(glob.glob(dataset_path + '*/2/*.bmp'))]
 
     features = []
     for image in tqdm(images):
@@ -117,4 +117,5 @@ def save_feature(train=True):
 
 
 if __name__ == "__main__":
+    save_feature(train=True)
     save_feature(train=False)
