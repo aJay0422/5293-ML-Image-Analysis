@@ -15,3 +15,11 @@ $$x = x_p(\theta) + (x_i(\theta) - x_p(\theta))\frac{Y}{M}$$
 $$y = y_p(\theta) + (y_i(\theta) - y_p(\theta))\frac{X}{N}$$
 $$\theta = 2\pi X/N$$
 Here $I_n$ is the output image of size $M \times N$, $(x_p(\theta),y_p(\theta))$ and $(x_i(\theta), y_i(\theta))$ are the coordinates of the inner and outer boundary points in the direction in the original image $I_o$.
+
+# ImageEnhancement
+1. Estimate the illumination in each $16 \times 16$ blocks and get an $M \times N$ illumination image.
+2. Subtract the illumination estimation from the original image.
+
+# FeatureExtraction
+1. Use modified Gabor filters with kernel size $9 \times 9$ to filter the enhanced image.
+2. Use mean and variance in $8 \times 8$ blocks of the filtered image to extract a feature vector.
