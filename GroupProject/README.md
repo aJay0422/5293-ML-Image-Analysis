@@ -23,3 +23,12 @@ Here $I_n$ is the output image of size $M \times N$, $(x_p(\theta),y_p(\theta))$
 # FeatureExtraction
 1. Use modified Gabor filters with kernel size $9 \times 9$ to filter the enhanced image.
 2. Use mean and variance in $8 \times 8$ blocks of the filtered image to extract a feature vector.
+
+# IrisMatching
+1. Use lda to reduce the feature dimension from 1536 to 107.
+2. Fit a nearest centroid classifier.
+3. Save the lda and the classifier for future usage on the test dataset.
+
+# PerformanceEvaluation
+1. In identification mode, we achieved 82% accuracy on the test set.
+2. In verification mode
