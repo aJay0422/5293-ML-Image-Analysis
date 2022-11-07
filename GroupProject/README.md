@@ -1,3 +1,9 @@
+# Peer evaluation form
+
+|                     | IrisLocalization | IrisNormalization | ImageEnhancement | FeatureExtraction | IrisMatching | PerformanceEvaluation | IrisRecognition |
+|---------------------|------------------|-------------------|------------------|-------------------|--------------|-----------------------|-----------------|
+| Shuo Wang(sw3509)   | Yes              |                   |                  | Yes               | Yes          | Yes                   | Yes             |
+| Shangjie Du(sd3497) | Yes              | Yes               | Yes              | Yes               |              | Yes                   | Yes             |
 # IrisLocalization
 1. Locate the center of the pupil using argmin of the mean of grayscale value
 in two axis.
