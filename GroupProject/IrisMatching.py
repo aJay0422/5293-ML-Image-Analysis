@@ -25,10 +25,15 @@ def irisMatching():
     if not os.path.exists("./clf_lda"):
         os.mkdir("./clf_lda")
 
-    X_train = np.load("train_features.npy")
+    train_features = []
+    for degree in [0]:
+        X_train = np.load(f"train_features_{degree}.npy")
+        train_features.append(X_train)
+    X_train = np.concatenate(train_features, axis=0)
 
     label_train = np.arange(108)
     label_train = np.repeat(label_train,3)
+    # label_train = np.concatenate([label_train for _ in range(7)])
     X_train_lda, lda = dim_reduction(X_train, label_train)
     lda_name = f"./clf_lda/lda.joblib"
     dump(lda, lda_name)

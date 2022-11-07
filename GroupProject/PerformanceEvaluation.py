@@ -3,6 +3,7 @@ from joblib import load
 import matplotlib.pyplot as plt
 import pandas as pd
 from scipy.linalg import norm
+from scipy.spatial import distance as dst
 from tqdm import tqdm
 
 
@@ -14,20 +15,31 @@ def Identification(metric="l2", n_comp=107, original=False):
     else:
         clf = load(f"./clf_lda/clf_{metric}_{n_comp}.joblib")
 
+    if metric == "l1":
+        metric = "cityblock"
+    elif metric == "l2":
+        metric = "euclidean"
+
     # Prepare data
-    X_test = np.load("test_features.npy")
+    test_features_lda = {}
+    for degree in [-9, -6, -3, 0, 3, 6, 9]:
+        X_test = np.load(f"test_features_{degree}.npy")
+        X_test_lda = lda.transform(X_test)
+        if original:
+            X_test_lda_n = X_test
+        else:
+            X_test_lda_n = X_test_lda[:, :n_comp]
+        test_features_lda[degree] = X_test_lda_n
     Y_test = np.repeat(np.arange(108), 4)
-    X_test_lda = lda.transform(X_test)
-    if original:
-        X_test_lda_n = X_test
-    else:
-        X_test_lda_n = X_test_lda[:,:n_comp]
-    # X_test_lda = X_test
 
     # Prediction and evaluation
-    Y_pred = clf.predict(X_test_lda_n)
+    dist_matrices = []
+    for degree in [-9, -6, -3, 0, 3, 6, 9]:
+        dist_m = dst.cdist(test_features_lda[degree], clf.centroids_, metric=metric)   # (432, 108)
+        dist_matrices.append(dist_m)
+    dist_m = np.min(dist_matrices, axis=0)   # (432, 108)
+    Y_pred = np.argmin(dist_m, axis=1)
     crr = np.mean(Y_pred == Y_test)
-    # print(f"Distance Metric: {metric}  CRR: {crr}")
     return crr
 
 
@@ -36,25 +48,28 @@ def Verification(threshold=0.5):
     lda = load("./clf_lda/lda.joblib")
 
     # Prepare data
-    X_test = np.load("test_features.npy")
+    test_features_lda = {}
+    for degree in [-9, -6, -3, 0, 3, 6, 9]:
+        X_test = np.load(f"test_features_{degree}.npy")
+        X_test_lda = lda.transform(X_test)
+        test_features_lda[degree] = X_test_lda
     label_test = np.arange(108)
     label_test = np.repeat(label_test, 4)
-    X_test_lda = lda.transform(X_test)
 
     # Matching
     centroids = clf.centroids_
+    dist_matrices = []
+    for degree in [-9, -6, -3, 0, 3, 6, 9]:
+        X_test_lda = test_features_lda[degree]
+        dist_m = dst.cdist(X_test_lda, centroids, metric="cosine")
+        dist_matrices.append(dist_m)
+    dist_matrices = np.array(dist_matrices)
+    dist_m = np.min(dist_matrices, axis=0)
 
     match = 0
     false_match = 0
     nonmatch = 0
     false_nonmatch = 0
-
-    dot_m = np.dot(X_test_lda, centroids.T)
-    norm_x = norm(X_test_lda, axis=1).reshape(-1, 1)
-    norm_c = norm(centroids, axis=1).reshape(1, -1)
-    norm_m = np.dot(norm_x, norm_c)
-    cos_m = dot_m / norm_m
-    dist_m = np.ones((len(X_test_lda), 108)) - cos_m
 
     for i in range(432):
         x_label = label_test[i]
@@ -152,4 +167,4 @@ def plot_chart(name="identification"):
 
 
 if __name__ == "__main__":
-    plot_chart("thresholds")
+    plot_chart("identification")

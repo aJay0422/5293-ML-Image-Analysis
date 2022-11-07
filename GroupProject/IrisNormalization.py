@@ -5,7 +5,7 @@ import cv2
 from IrisLocalization import localization
 
 
-def normalization(img, X_p, Y_p, Rp, X_i, Y_i, Ri):
+def normalization(img, X_p, Y_p, Rp, X_i, Y_i, Ri, theta_init=0):
     """
     Map the iris from Cartesian coordinate to polar coordinates
     :param img: The input image
@@ -20,7 +20,7 @@ def normalization(img, X_p, Y_p, Rp, X_i, Y_i, Ri):
     output = np.zeros((M, N))
     for X in range(N):
         for Y in range(M):
-            theta = 2 * np.pi * X / N
+            theta = 2 * np.pi * X / N + theta_init
             x_p_theta = X_p + Rp * np.cos(theta)
             x_i_theta = X_i + Ri * np.cos(theta)
             y_p_theta = Y_p + Rp * np.sin(theta)

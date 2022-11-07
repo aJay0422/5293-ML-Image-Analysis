@@ -87,7 +87,7 @@ def FeatureExtraction(img, kernel_size=9):
     return features
 
 
-def save_feature(train=True, dataset_path=None):
+def save_feature(train=True, dataset_path=None, theta_init=0):
     if train:
         images = [cv2.imread(file, cv2.IMREAD_GRAYSCALE) for file in sorted(glob.glob(dataset_path + '*/1/*.bmp'))]
     else:
@@ -97,7 +97,7 @@ def save_feature(train=True, dataset_path=None):
     for image in tqdm(images):
         X_p, Y_p, Rp, X_i, Y_i, Ri = localization(image)
         # print("Localization finished")
-        iris_image = normalization(image, X_p, Y_p, Rp, X_i, Y_i, Ri)
+        iris_image = normalization(image, X_p, Y_p, Rp, X_i, Y_i, Ri, theta_init)
         # print("normalization finished")
         enhanced_image = enhancement(iris_image)
         # print("enhancement finished")
@@ -107,9 +107,9 @@ def save_feature(train=True, dataset_path=None):
 
     features = np.array(features)
     if train:
-        np.save("train_features.npy", features)
+        np.save(f"train_features_{theta_init}.npy", features)
     else:
-        np.save("test_features.npy", features)
+        np.save(f"test_features_{theta_init}.npy", features)
 
     print("Saved. Shape={}".format(features.shape))
 
@@ -117,5 +117,7 @@ def save_feature(train=True, dataset_path=None):
 
 
 if __name__ == "__main__":
-    save_feature(train=True)
-    save_feature(train=False)
+    DATASET_PATH = "./datasets/CASIA/"
+    for degree in [-9, -6, -3, 3, 6, 9]:
+        theta_init = 2 * np.pi * degree / 360
+        save_feature(train=True, dataset_path=DATASET_PATH, theta_init=theta_init)
