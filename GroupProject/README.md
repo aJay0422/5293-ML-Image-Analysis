@@ -38,3 +38,19 @@ Here $I_n$ is the output image of size $M \times N$, $(x_p(\theta),y_p(\theta))$
 # PerformanceEvaluation
 1. In identification mode, we achieved 82% accuracy on the test set.
 2. In verification mode
+### CRR CURVE
+![crr curve](images/crr_dim.png)
+### Recoginition Results using Different Similarity Measures
+|   | original  |  reduced |
+|---|---|---|
+| l1  | 0.83  | 0.62  |
+| l2  |  0.80 |  0.67 |
+| cosine  |  0.79 |  0.79 |
+### ROC CURVE
+![roc curve](images/roc_curve.png)
+### False Match and False Nonmatch Rates with Different Threshold Values
+| Threshold  | False match rate(%)  |False non-match rate   |
+|---|---|---|
+| 0.559  | 0.035   | 42.8  |
+| 0.588  | 0.12  | 33.3  |
+| 0.700  | 2.97  | 8.33  |
