@@ -1,4 +1,5 @@
 import numpy as np
+import sklearn.metrics
 from joblib import load
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -40,6 +41,7 @@ def Identification(metric="l2", n_comp=107, original=False):
     dist_m = np.min(dist_matrices, axis=0)   # (432, 108)
     Y_pred = np.argmin(dist_m, axis=1)
     crr = np.mean(Y_pred == Y_test)
+    # print(sklearn.metrics.classification_report(Y_test, Y_pred))
     return crr
 
 
@@ -112,7 +114,7 @@ def plot_curve(name="crr_dim"):
         plt.legend()
         plt.show()
     elif name == "roc":
-        thresholds = np.log10(np.linspace(1, 10, 1000))
+        thresholds = np.log10(np.linspace(1, 10, 100))
         x = []
         y = []
         for threshold in tqdm(thresholds):
@@ -147,7 +149,7 @@ def plot_chart(name="identification"):
         print("Recognition Results using Different Similarity Measures")
         print(df)
     elif name == "thresholds":
-        thresholds = [0.559, 0.588, 0.636]
+        thresholds = [0.559, 0.588, 0.700]
         fmrs = []
         fnmrs = []
         for threshold in thresholds:
@@ -167,4 +169,4 @@ def plot_chart(name="identification"):
 
 
 if __name__ == "__main__":
-    plot_chart("identification")
+    plot_curve("roc")

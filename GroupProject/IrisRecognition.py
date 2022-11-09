@@ -23,7 +23,7 @@ def main():
     print("*" * 100)
     plot_chart(name="identification")
     print("*" * 100)
-    print("Curve shown in the new window")
+    print("crr-dim Curve shown in the new window")
     print("*" * 100)
     plot_curve(name="crr_dim")
     ## Verification
