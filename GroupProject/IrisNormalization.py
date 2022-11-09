@@ -17,7 +17,7 @@ def normalization(img, X_p, Y_p, Rp, X_i, Y_i, Ri, theta_init=0):
     :param Ri: radius of iris
     """
     M, N = 64, 512
-    output = np.zeros((M, N))
+    output = np.zeros((M, N))   # prepare the output image
     for X in range(N):
         for Y in range(M):
             theta = 2 * np.pi * X / N + theta_init
@@ -27,8 +27,10 @@ def normalization(img, X_p, Y_p, Rp, X_i, Y_i, Ri, theta_init=0):
             y_i_theta = Y_i + Ri * np.sin(theta)
             x = x_p_theta + (x_i_theta - x_p_theta) * Y / M
             y = y_p_theta + (y_i_theta - y_p_theta) * Y / M
-            x = round(x)
-            y = round(y)
+            x = round(x)   # find the pixel in the original image
+            y = round(y)   # find the pixel in the original image
+
+            # push it back if exceed the boundary
             if y >= 280:
                 y = 279
             elif y < 0:
@@ -43,10 +45,4 @@ def normalization(img, X_p, Y_p, Rp, X_i, Y_i, Ri, theta_init=0):
 
 
 if __name__ == "__main__":
-    file_path = "datasets/CASIA/001/1/001_1_1.bmp"
-    img = cv2.imread(file_path, cv2.IMREAD_GRAYSCALE)
-    X_p, Y_p, Rp, X_i, Y_i, Ri = localization(img)
-    output = normalization(img, X_p, Y_p, Rp, X_i, Y_i, Ri)
-
-    cv2.imshow("image", output)
-    cv2.waitKey(0)
+    pass

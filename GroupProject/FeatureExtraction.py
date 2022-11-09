@@ -64,17 +64,15 @@ def block_feature_extractor(block):
 
 
 def FeatureExtraction(img, kernel_size=9):
+    # filter the image with modified gabor filter
     img_filtered1, img_filtered2 = get_filtered_image(img, kernel_size)
     n_row, n_col = img_filtered1.shape
-
-    # cv2.imshow("Image1: kernel_size{}".format(kernel_size), img_filtered1)
-    # cv2.imshow("Image2: kernel_size{}".format(kernel_size), img_filtered2)
-    # cv2.waitKey(0)
 
     block_size = 8
     n_blocks_row = n_row // block_size
     n_blocks_col = n_col // block_size
 
+    # extract feature by each 8x8 block
     features = []
     for IMAGE in [img_filtered1, img_filtered2]:
         for i in range(n_blocks_row):
@@ -88,24 +86,23 @@ def FeatureExtraction(img, kernel_size=9):
 
 
 def save_feature(train=True, dataset_path=None, theta_init=0):
+    # read all images
     if train:
         images = [cv2.imread(file, cv2.IMREAD_GRAYSCALE) for file in sorted(glob.glob(dataset_path + '*/1/*.bmp'))]
     else:
         images = [cv2.imread(file, cv2.IMREAD_GRAYSCALE) for file in sorted(glob.glob(dataset_path + '*/2/*.bmp'))]
 
+    # extract all features
     features = []
     for image in tqdm(images):
         X_p, Y_p, Rp, X_i, Y_i, Ri = localization(image)
-        # print("Localization finished")
         iris_image = normalization(image, X_p, Y_p, Rp, X_i, Y_i, Ri, theta_init)
-        # print("normalization finished")
         enhanced_image = enhancement(iris_image)
-        # print("enhancement finished")
         feature = FeatureExtraction(enhanced_image)
-        # print("feature extraction finished")
         features.append(feature)
 
     features = np.array(features)
+    # save feature
     if train:
         np.save(f"train_features_{theta_init}.npy", features)
     else:
@@ -117,7 +114,4 @@ def save_feature(train=True, dataset_path=None, theta_init=0):
 
 
 if __name__ == "__main__":
-    DATASET_PATH = "./datasets/CASIA/"
-    for degree in [-9, -6, -3, 3, 6, 9]:
-        theta_init = 2 * np.pi * degree / 360
-        save_feature(train=True, dataset_path=DATASET_PATH, theta_init=theta_init)
+    pass

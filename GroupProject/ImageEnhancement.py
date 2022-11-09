@@ -14,6 +14,7 @@ def enhancement(img):
     m = M // 16   # 4
     n = N // 16   # 32
     illumination = np.zeros((m, n))   # size (4, 32)
+    # estimate illumination by block
     for i in range(m):
         for j in range(n):
             block = img[i*16:(i+1)*16, j*16:(j+1)*16]
@@ -38,11 +39,4 @@ def enhancement(img):
 
 
 if __name__ == "__main__":
-    file_path = "datasets/CASIA/012/1/012_1_1.bmp"
-    img = cv2.imread(file_path, cv2.IMREAD_GRAYSCALE)
-    X_p, Y_p, Rp, X_i, Y_i, Ri = localization(img)
-    output = normalization(img, X_p, Y_p, Rp, X_i, Y_i, Ri)
-    img_enhanced = enhancement(output)
-    cv2.imshow("output", output)
-    cv2.imshow("illumination", img_enhanced)
-    cv2.waitKey(0)
+    pass

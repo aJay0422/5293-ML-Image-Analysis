@@ -12,13 +12,14 @@ def main():
     # Extract features
     print("*" * 100)
     print("Extracting features......")
+    # save features of training and test dataset
     # save_feature(train=True, dataset_path=DATASET_PATH)
     # save_feature(train=False, dataset_path=DATASET_PATH)
 
     # Iris Matching
     irisMatching()
 
-    # Performance Evaluation
+    # Performance Evaluation for identification and verification
     ## Identification
     print("*" * 100)
     plot_chart(name="identification")

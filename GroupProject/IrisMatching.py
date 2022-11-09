@@ -25,6 +25,7 @@ def irisMatching():
     if not os.path.exists("./clf_lda"):
         os.mkdir("./clf_lda")
 
+    # load training dataset
     train_features = []
     for degree in [0]:
         X_train = np.load(f"train_features_{degree}.npy")

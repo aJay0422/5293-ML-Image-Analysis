@@ -49,7 +49,7 @@ def Verification(threshold=0.5):
     clf = load("./clf_lda/clf_cosine_107.joblib")
     lda = load("./clf_lda/lda.joblib")
 
-    # Prepare data
+    # Prepare data from 7 different rotation degree
     test_features_lda = {}
     for degree in [-9, -6, -3, 0, 3, 6, 9]:
         X_test = np.load(f"test_features_{degree}.npy")
@@ -61,6 +61,7 @@ def Verification(threshold=0.5):
     # Matching
     centroids = clf.centroids_
     dist_matrices = []
+    # calculate distance matrix for 7 different rotation
     for degree in [-9, -6, -3, 0, 3, 6, 9]:
         X_test_lda = test_features_lda[degree]
         dist_m = dst.cdist(X_test_lda, centroids, metric="cosine")
@@ -73,6 +74,7 @@ def Verification(threshold=0.5):
     nonmatch = 0
     false_nonmatch = 0
 
+    # record false match and false non-match cases
     for i in range(432):
         x_label = label_test[i]
         for cls in range(108):
