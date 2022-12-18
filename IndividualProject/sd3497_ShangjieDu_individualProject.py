@@ -107,6 +107,16 @@ class simpleCNN(nn.Module):
         return logits
 
 
+# Following codes construct the ResNet
+class BasicBlock(nn.Module):
+    expansion = 1
+
+    def __init__(self, in_channel, out_channel, stride=1, downsample=None, **kwargs):
+        super(BasicBlock)
+
+
+
+
 def _init_weights(m):
     torch.manual_seed(42)
     if isinstance(m, nn.Linear):
