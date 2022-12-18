@@ -2,8 +2,10 @@ import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 import torchvision
+from torchvision.models import resnet34, ResNet34_Weights
 import scipy.io
 import numpy as np
+import time
 import matplotlib.pyplot as plt
 
 
@@ -112,9 +114,79 @@ class BasicBlock(nn.Module):
     expansion = 1
 
     def __init__(self, in_channel, out_channel, stride=1, downsample=None, **kwargs):
-        super(BasicBlock)
+        super(BasicBlock, self).__init__()
+        self.conv1 = nn.Conv2d(in_channels=in_channel, out_channels=out_channel,
+                               kernel_size=3, stride=stride, padding=1, bias=False)
+        self.bn1 = nn.BatchNorm2d(out_channel)
+        self.relu = nn.ReLU()
+        self.conv2 = nn.Conv2d(in_channels=out_channel, out_channels=out_channel,
+                               kernel_size=3, stride=1, padding=1, bias=False)
+        self.bn2 = nn.BatchNorm2d(out_channel)
+        self.downsample = downsample
+
+    def forward(self, x):
+        identity = x
+        if self.downsample is not None:
+            identity = self.downsample(x)
+
+        out = self.conv1(x)
+        out = self.bn1(out)
+        out = self.relu(out)
+
+        out = self.conv2(out)
+        out = self.bn2(out)
+
+        out += identity
+        out = self.relu(out)
+
+        return out
 
 
+class Bottleneck(nn.Module):
+    expansion = 4
+
+    def __init__(self, in_channel, out_channel, stride=1, downsample=None,
+                 groups=1, width_per_group=64):
+        super(Bottleneck, self).__init__()
+
+        width = int(out_channel * (width_per_group / 64.)) * groups
+
+        self.conv1 = nn.Conv2d(in_channels=in_channel, out_channels=width,
+                               kernel_size=1, stride=1, bias=False)
+        self.bn1 = nn.BatchNorm2d(width)
+
+        self.conv2 = nn.Conv2d(in_channels=width, out_channels=width, groups=groups,
+                               kernel_size=3, stride=stride, bias=False, padding=1)
+        self.bn2 = nn.BatchNorm2d(width)
+
+        self.conv3 = nn.Conv2d(in_channels=width, out_channels=out_channel*self.expansion,
+                               kernel_size=1, stride=1, bias=False)
+        self.bn3 = nn.BatchNorm2d(out_channel * self.expansion)
+        self.relu = nn.ReLU(inplace=True)
+        self.downsample = downsample
+
+    def forward(self, x):
+        identity = x
+        if self.downsample is not None:
+            identity = self.downsample(x)
+
+        out = self.conv1(x)
+
+
+def ResNet34(num_classes=10, freeze=True):
+    # get pretrained model
+    model = resnet34(weights=ResNet34_Weights.IMAGENET1K_V1)
+
+    # freeze feature extractor
+    if freeze:
+        for param in model.parameters():
+            param.requires_grad = False
+
+    # replace the classifcication head
+    in_features = model.fc.in_features
+    model.fc = nn.Linear(in_features, num_classes)
+
+    return model
 
 
 def _init_weights(m):
@@ -206,8 +278,8 @@ def train(model : nn.Module,
 
 
 if __name__ == "__main__":
-    model = simpleCNN()
+    model = ResNet34()
     EPOCHS = 150
     trainloader, testloader = prepare_data()
-    save_path = "./simpleCNN.pth"
+    save_path = "./ResNet34.pth"
     train(model, EPOCHS, trainloader, testloader, save_path)
