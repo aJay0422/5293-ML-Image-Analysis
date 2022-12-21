@@ -2,11 +2,9 @@ import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 import torchvision
-from torchvision.models import resnet34, ResNet34_Weights
 import scipy.io
 import numpy as np
-import time
-import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -47,7 +45,6 @@ def prepare_data():
     transforms = {
         "train": torchvision.transforms.Compose([
             torchvision.transforms.ToPILImage(),
-            torchvision.transforms.RandomHorizontalFlip(),
             torchvision.transforms.ToTensor(),
             torchvision.transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ]),
@@ -61,7 +58,7 @@ def prepare_data():
     testset = mydataset(X_test, Y_test, transforms["test"])
 
     # prepare dataloader
-    batch_size = 64
+    batch_size = 128
     trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True)
     testloader = DataLoader(testset, batch_size=batch_size, shuffle=False)
 
@@ -83,7 +80,7 @@ class simpleCNN(nn.Module):
         self.bn3 = nn.BatchNorm2d(256)
 
         self.flatten = nn.Flatten(start_dim=1)
-        self.fc = nn.Linear(256 * 4 * 4, 10)
+        self.fc = nn.Linear(256 * 4 * 4, num_classes)
 
         self.apply(_init_weights)
 
@@ -109,84 +106,54 @@ class simpleCNN(nn.Module):
         return logits
 
 
-# Following codes construct the ResNet
-class BasicBlock(nn.Module):
-    expansion = 1
-
-    def __init__(self, in_channel, out_channel, stride=1, downsample=None, **kwargs):
-        super(BasicBlock, self).__init__()
-        self.conv1 = nn.Conv2d(in_channels=in_channel, out_channels=out_channel,
-                               kernel_size=3, stride=stride, padding=1, bias=False)
-        self.bn1 = nn.BatchNorm2d(out_channel)
+class mediumCNN(nn.Module):
+    def __init__(self, num_classes=10):
+        super(mediumCNN, self).__init__()
+        self.conv1 = nn.Conv2d(in_channels=3, out_channels=64, kernel_size=5, padding=2)
+        self.bn1 = nn.BatchNorm2d(64)
         self.relu = nn.ReLU()
-        self.conv2 = nn.Conv2d(in_channels=out_channel, out_channels=out_channel,
-                               kernel_size=3, stride=1, padding=1, bias=False)
-        self.bn2 = nn.BatchNorm2d(out_channel)
-        self.downsample = downsample
+        self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+
+        self.conv2 = nn.Conv2d(in_channels=64, out_channels=256, kernel_size=5, padding=2)
+        self.bn2 = nn.BatchNorm2d(256)
+
+        self.conv3 = nn.Conv2d(in_channels=256, out_channels=1024, kernel_size=3, padding=1)
+        self.bn3 = nn.BatchNorm2d(1024)
+
+        self.conv4 = nn.Conv2d(in_channels=1024, out_channels=2048, kernel_size=3, padding=1)
+        self.bn4 = nn.BatchNorm2d(2048)
+
+        self.avgpool = nn.AdaptiveAvgPool2d(1)
+        self.flatten = nn.Flatten(start_dim=1)
+        self.fc = nn.Linear(2048, num_classes)
+
+        self.apply(_init_weights)
 
     def forward(self, x):
-        identity = x
-        if self.downsample is not None:
-            identity = self.downsample(x)
+        x = self.conv1(x)
+        x = self.bn1(x)
+        x = self.relu(x)
+        x = self.maxpool(x)
 
-        out = self.conv1(x)
-        out = self.bn1(out)
-        out = self.relu(out)
+        x = self.conv2(x)
+        x = self.bn2(x)
+        x = self.relu(x)
+        x = self.maxpool(x)
 
-        out = self.conv2(out)
-        out = self.bn2(out)
+        x = self.conv3(x)
+        x = self.bn3(x)
+        x = self.relu(x)
+        x = self.maxpool(x)
 
-        out += identity
-        out = self.relu(out)
+        x = self.conv4(x)
+        x = self.bn4(x)
+        x = self.relu(x)
+        x = self.maxpool(x)
 
-        return out
+        output = self.flatten(self.avgpool(x))
+        logits = self.fc(output)
 
-
-class Bottleneck(nn.Module):
-    expansion = 4
-
-    def __init__(self, in_channel, out_channel, stride=1, downsample=None,
-                 groups=1, width_per_group=64):
-        super(Bottleneck, self).__init__()
-
-        width = int(out_channel * (width_per_group / 64.)) * groups
-
-        self.conv1 = nn.Conv2d(in_channels=in_channel, out_channels=width,
-                               kernel_size=1, stride=1, bias=False)
-        self.bn1 = nn.BatchNorm2d(width)
-
-        self.conv2 = nn.Conv2d(in_channels=width, out_channels=width, groups=groups,
-                               kernel_size=3, stride=stride, bias=False, padding=1)
-        self.bn2 = nn.BatchNorm2d(width)
-
-        self.conv3 = nn.Conv2d(in_channels=width, out_channels=out_channel*self.expansion,
-                               kernel_size=1, stride=1, bias=False)
-        self.bn3 = nn.BatchNorm2d(out_channel * self.expansion)
-        self.relu = nn.ReLU(inplace=True)
-        self.downsample = downsample
-
-    def forward(self, x):
-        identity = x
-        if self.downsample is not None:
-            identity = self.downsample(x)
-
-        out = self.conv1(x)
-
-
-def ResNet34(num_classes=10, freeze=True):
-    # get pretrained model
-    model = resnet34(weights=ResNet34_Weights.IMAGENET1K_V1)
-
-    # freeze feature extractor
-    if freeze:
-        for param in model.parameters():
-            param.requires_grad = False
-
-    # replace the classifcication head
-    in_features = model.fc.in_features
-    model.fc = nn.Linear(in_features, num_classes)
-
-    return model
+        return logits
 
 
 def _init_weights(m):
@@ -247,7 +214,7 @@ def train(model : nn.Module,
     for epoch in range(epochs):
         model.train()
         model.to(device)
-        for X_batch, Y_batch in trainloader:
+        for X_batch, Y_batch in tqdm(trainloader):
             X_batch, Y_batch = X_batch.to(device), Y_batch.to(device)
             # forward
             logits = model(X_batch)
@@ -277,9 +244,28 @@ def train(model : nn.Module,
             print("Saved")
 
 
-if __name__ == "__main__":
-    model = ResNet34()
-    EPOCHS = 150
+def evaluation(model=None, weight_path=None):
+    # load weights
+    model.to(device)
+    model.load_state_dict(torch.load(weight_path, map_location=device))
+
+    # evaluate
     trainloader, testloader = prepare_data()
-    save_path = "./ResNet34.pth"
+    _, test_acc = get_loss_acc(model, testloader)
+    print(f"Test Accuracy: {test_acc}")
+
+    # count parameters
+    count = sum(p.numel() for p in model.parameters())
+    print(f"{count} parameters")
+
+
+if __name__ == "__main__":
+    model = simpleCNN()
+    EPOCHS = 50
+    trainloader, testloader = prepare_data()
+    save_path = "./simpleCNN.pth"
     train(model, EPOCHS, trainloader, testloader, save_path)
+
+    model = simpleCNN()
+    weight_path = "./simpleCNN.pth"
+    evaluation(model ,weight_path)
